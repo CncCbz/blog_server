@@ -11,7 +11,8 @@ const {
   addUser,
   getGhsConfig,
   getVideoList,
-  getVidoUrl
+  getVidoUrl,
+  issueArtice
 } = require('../controller');
 
 const router = new Router();
@@ -29,6 +30,8 @@ router.post('/adduser', addUser);
 router.post('/ghsconfig', getGhsConfig);
 router.post('/ghsvideolist', getVideoList);
 router.post('/ghsvideourl', getVidoUrl);
+router.post('/issuearticle', issueArtice);
+
 module.exports = {
   router,
   routes
