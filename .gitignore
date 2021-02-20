@@ -1,2 +1,4 @@
 .gitingore
 /node_modules
+/blogs
+/test

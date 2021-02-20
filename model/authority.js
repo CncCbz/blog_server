@@ -10,12 +10,14 @@ const define_schema_auth = (db, Sequelize) => {
     {
       role: {
         type: Sequelize.STRING,
-        primaryKey: true //主键
+        primaryKey: true, //主键
+        unique: true
       },
       //角色名称
       rolename: {
         type: Sequelize.STRING,
-        allowNull: false
+        allowNull: false,
+        unique: true
       },
       //首页
       home: {
