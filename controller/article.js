@@ -73,47 +73,60 @@ const getArticleList = async (ctx, next) => {
     raw: true
   });
   if (!(await compareWeight(userRole, 'admin', true))) {
-    await Article.findAll({
+    await Article.findAndCountAll({
       where: { auther: userName },
       raw: true,
-      attributes: ['auther', 'title', 'comment', 'tags', 'previewText', 'likes', 'createdAt', 'updatedAt'],
+      attributes: ['id', 'auther', 'title', 'comment', 'tags', 'previewText', 'likes', 'created_at', 'updated_at'],
       limit,
       offset: limit * (curPage - 1)
     })
-      .then(list => {
+      .then(ret => {
+        if (ret.count === 0) {
+          ctx.body = {
+            msg: 'fail',
+            data: '还未发布过文章，快去发布你的第一篇博客吧',
+            list: [],
+            total: 0
+          };
+          return;
+        }
         ctx.body = {
           msg: 'success',
           data: '获取成功',
-          list
+          list: ret.rows,
+          total: ret.count
         };
       })
       .catch(err => {
         ctx.body = {
-          msg: 'success',
+          msg: 'fail',
           data: '还未发布过文章，快去发布你的第一篇博客吧',
-          list: []
+          list: [],
+          total: 0
         };
       });
     return;
   }
-  await Article.findAll({
+  await Article.findAndCountAll({
     raw: true,
     attributes: ['id', 'auther', 'title', 'comment', 'tags', 'previewText', 'likes', 'created_at', 'updated_at'],
     limit,
     offset: limit * (curPage - 1)
   })
-    .then(list => {
+    .then(ret => {
       ctx.body = {
         msg: 'success',
         data: '获取成功',
-        list
+        list: ret.rows,
+        total: ret.count
       };
     })
     .catch(err => {
       ctx.body = {
         msg: 'success',
         data: '数据库中没有任何文章！',
-        list: []
+        list: [],
+        total: 0
       };
     });
 };
@@ -201,12 +214,21 @@ const updateArticle = async (ctx, next) => {
     delete article.id;
     await Article.update(article, {
       where: { id }
-    });
-    fs.writeFileSync(path.join(__dirname, filepath), article.text);
-    ctx.body = {
-      mes: 'success',
-      data: `《${article.title}》更新成功`
-    };
+    })
+      .then(ret => {
+        fs.writeFileSync(path.join(__dirname, filepath), article.text);
+        ctx.body = {
+          mes: 'success',
+          data: `《${article.title}》更新成功`
+        };
+      })
+      .catch(err => {
+        ctx.body = {
+          mes: 'fail',
+          data: `文章标题已存在！`
+        };
+      });
+
     return;
   }
   ctx.body = {
