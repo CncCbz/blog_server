@@ -3,7 +3,7 @@ const { register } = require('./register');
 const { getRoles } = require('./role');
 const { getUsers, editUser, deleteUser, deleteUsers, addUser } = require('./user');
 const { getGhsConfig, getVideoList, getVidoUrl } = require('./ghs');
-const { issueArtice } = require('./article');
+const { issueArtice, getArticleList, deleteArticle, getArticle, updateArticle } = require('./article');
 
 module.exports = {
   //登录注册
@@ -21,5 +21,9 @@ module.exports = {
   getVideoList,
   getVidoUrl,
   //文章
-  issueArtice
+  issueArtice,
+  getArticleList,
+  deleteArticle,
+  getArticle,
+  updateArticle
 };

@@ -37,8 +37,9 @@ const judgeAuth = async (operator, user) => {
  * 权重比较
  * @param {Strign} role1 角色1
  * @param {Strign} role2 角色2
+ * @param {Boolean} equal 为true时为 role1 >= role2，默认为 role1 > role2
  */
-const compareWeight = async (role1, role2) => {
+const compareWeight = async (role1, role2, equal = false) => {
   const { weight: role1Weight } = await Authority.findOne({
     attributes: ['weight'],
     where: { role: role1 },
@@ -49,6 +50,9 @@ const compareWeight = async (role1, role2) => {
     where: { role: role2 },
     raw: true
   });
+  if (equal) {
+    return role1Weight >= role2Weight;
+  }
   return role1Weight > role2Weight;
 };
 
