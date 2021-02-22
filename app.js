@@ -12,6 +12,7 @@ const { CORS_CONFIG, EVN_CONFIG, SEQUELIZE_CONFIG, SECRET_CONFIG } = require('./
 const app = new Koa();
 //扩展
 app.use(extend_ctx('env', EVN_CONFIG));
+
 //生成token
 const extend_ctx_jwt = {
   ...jsonwebtoken,

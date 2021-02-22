@@ -4,7 +4,7 @@ const { getRoles } = require('./role');
 const { getUsers, editUser, deleteUser, deleteUsers, addUser } = require('./user');
 const { getGhsConfig, getVideoList, getVidoUrl } = require('./ghs');
 const { issueArtice, getArticleList, deleteArticle, getArticle, updateArticle } = require('./article');
-
+const { uploadImg } = require('./upload');
 module.exports = {
   //登录注册
   register,
@@ -25,5 +25,7 @@ module.exports = {
   getArticleList,
   deleteArticle,
   getArticle,
-  updateArticle
+  updateArticle,
+  //文件上传
+  uploadImg
 };
