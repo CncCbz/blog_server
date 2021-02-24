@@ -1,4 +1,4 @@
-const { check, encrypt } = require('../unit');
+const { check, encrypt } = require('../utils');
 const { User } = require('../model');
 
 const register = async (ctx, next) => {

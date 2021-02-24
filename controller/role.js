@@ -1,5 +1,5 @@
 const { User, Authority } = require('../model');
-const { checkAuth } = require('../unit');
+const { checkAuth } = require('../utils');
 const getRoles = async (ctx, next) => {
   const { userName } = ctx.request.body;
 

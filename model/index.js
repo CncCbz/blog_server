@@ -6,6 +6,7 @@ const { define_schema_user } = require('./user');
 const { define_schema_auth } = require('./authority');
 const { define_schema_article } = require('./article');
 const { define_schema_recycle } = require('./recycle');
+const { define_schema_log } = require('./log');
 
 const sequelize = new Sequelize(MYSQL_CONFIG.database, MYSQL_CONFIG.username, MYSQL_CONFIG.password, SEQUELIZE_CONFIG);
 
@@ -13,10 +14,12 @@ const User = define_schema_user(sequelize, Sequelize);
 const Authority = define_schema_auth(sequelize, Sequelize);
 const Article = define_schema_article(sequelize, Sequelize);
 const Recycle = define_schema_recycle(sequelize, Sequelize);
+const Log = define_schema_log(sequelize, Sequelize);
 
 module.exports = {
   User,
   Authority,
   Article,
-  Recycle
+  Recycle,
+  Log
 };

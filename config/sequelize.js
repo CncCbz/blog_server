@@ -13,8 +13,8 @@ const SEQUELIZE_CONFIG = {
     updatedAt: 'updated_time',
     //所有驼峰命名格式
     underscored: true
-  }
-  // logging: false
+  },
+  logging: false
 };
 
 module.exports = {

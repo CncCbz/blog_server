@@ -1,6 +1,6 @@
 const axios = require('axios');
 const { ghsConfig, ghsList } = require('../config');
-const { checkAuth, judgeAuth } = require('../unit');
+const { checkAuth, judgeAuth } = require('../utils');
 
 const config = ghsConfig();
 const list = ghsList();

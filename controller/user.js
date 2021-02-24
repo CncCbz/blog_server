@@ -1,5 +1,9 @@
 const { User, Authority } = require('../model');
-const { checkAuth, encrypt, judgeAuth, compareWeight } = require('../unit');
+const { checkAuth, encrypt, judgeAuth, compareWeight } = require('../utils');
+const { log2db } = require('../utils');
+
+const type = 'user';
+
 const getUsers = async (ctx, next) => {
   const authName = 'listuser';
   const { userName } = ctx.request.body;
@@ -27,28 +31,42 @@ const editUser = async (ctx, next) => {
     where: { id },
     raw: true
   });
+  //log info
+  let log_infos = {
+    type,
+    ip: ctx.request.ip,
+    operation: 'update',
+    target: username,
+    operator
+  };
   const isAllow = await checkAuth(operator, authName);
   const enoughWeight = await judgeAuth(operator, username);
   if (isAllow && enoughWeight) {
     delete formData.id;
     const ret = await User.update(formData, { where: { id } });
     if (ret[0]) {
+      log_infos['result'] = 'success';
       ctx.body = {
         msg: 'success',
         data: '更新成功！'
       };
     } else {
+      log_infos['result'] = 'fail';
+      log_infos['reason'] = '无改动';
       ctx.body = {
         msg: 'fail',
         data: '更新失败！您没有改动！'
       };
     }
   } else {
+    log_infos['result'] = 'fail';
+    log_infos['reason'] = '权限不足';
     ctx.body = {
       msg: 'fail',
       data: '您没有权限编辑！'
     };
   }
+  log2db(log_infos);
 };
 const deleteUser = async (ctx, next) => {
   const authName = 'edituser';
@@ -58,27 +76,40 @@ const deleteUser = async (ctx, next) => {
     where: { id },
     raw: true
   });
+  //log info
+  let log_infos = {
+    type,
+    ip: ctx.request.ip,
+    operation: 'delete',
+    target: username,
+    operator
+  };
   const isAllow = await checkAuth(operator, authName);
   const enoughWeight = await judgeAuth(operator, username);
   if (isAllow && enoughWeight) {
     const ret = await User.destroy({ where: { id } });
     if (ret) {
+      log_infos['result'] = 'success';
       ctx.body = {
         msg: 'success',
         data: '删除成功！'
       };
     } else {
+      log_infos['result'] = 'fail';
       ctx.body = {
         msg: 'fail',
         data: '删除失败！请尝试刷新界面！'
       };
     }
   } else {
+    log_infos['result'] = 'fail';
+    log_infos['reason'] = '权限不足';
     ctx.body = {
       msg: 'fail',
       data: '您没有权限删除！'
     };
   }
+  log2db(log_infos);
 };
 const deleteUsers = async (ctx, next) => {
   const authName = 'edituser';
@@ -105,6 +136,17 @@ const deleteUsers = async (ctx, next) => {
       unfinishedIds.push(id);
     }
   }
+  //log info
+  let log_infos = {
+    type,
+    ip: ctx.request.ip,
+    operation: 'delete',
+    target: ids.join(','),
+    operator,
+    result: 'success',
+    remark: `${finishedIds.join(',')}删除成功，${errIds.join(',')}删除出错，${unfinishedIds.join(',')}删除失败`
+  };
+  log2db(log_infos);
   ctx.body = {
     msg: 'success',
     data: `批量删除执行成功！`,
@@ -122,6 +164,15 @@ const addUser = async (ctx, next) => {
     attributes: ['role']
   });
 
+  //log info
+  let log_infos = {
+    type,
+    ip: ctx.request.ip,
+    operation: 'increase',
+    target: formData.userName,
+    operator
+  };
+
   const enoughWeight = await compareWeight(operatorRole, formData.role);
   const isAllow = await checkAuth(operator, authName);
 
@@ -138,11 +189,15 @@ const addUser = async (ctx, next) => {
           password: encrypt(formData.pass),
           role: formData.role
         });
+        log_infos['result'] = 'success';
+        log_infos['remark'] = `用户：${formData.userName}`;
         ctx.body = {
           msg: 'success',
           data: `用户${formData.userName}添加成功！`
         };
       } catch (error) {
+        log_infos['result'] = 'error';
+        log_infos['reason'] = `重复注册`;
         ctx.status = 200;
         ctx.body = {
           msg: 'fail',
@@ -150,8 +205,12 @@ const addUser = async (ctx, next) => {
         };
       }
     }
+    log2db(log_infos);
     return;
   }
+  log_infos['result'] = 'fail';
+  log_infos['reason'] = '权限不足';
+  log2db(log_infos);
   ctx.body = {
     msg: 'fail',
     data: '权限不足！'

@@ -1,4 +1,4 @@
-const { check, compare } = require('../unit');
+const { check, compare } = require('../utils');
 const { User, Authority } = require('../model');
 
 const login = async (ctx, next) => {

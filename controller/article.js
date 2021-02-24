@@ -1,25 +1,48 @@
 const fs = require('fs');
 const path = require('path');
 const { User, Authority, Article, Recycle } = require('../model');
-const { checkAuth, judgeAuth, compareWeight } = require('../unit');
+const { checkAuth, judgeAuth, compareWeight } = require('../utils');
+const { log2db } = require('../utils');
+
+const type = 'article';
+
 //发布文章
 const issueArtice = async (ctx, next) => {
   const authName = 'addarticle';
   const { userName, article } = ctx.request.body;
+  //log info
+  let log_infos = {
+    type,
+    ip: ctx.request.ip,
+    operation: 'increase',
+    target: userName,
+    operator: userName
+  };
+
   const isAllow = checkAuth(userName, authName);
   if (!isAllow) {
+    const reason = '权限不足';
+    const result = 'fail';
+    log_infos['result'] = result;
+    log_infos['reason'] = reason;
     ctx.body = {
-      mes: 'fail',
-      data: '您没有权限发布文章！'
+      mes: result,
+      data: reason
     };
+    log2db(log_infos);
     return;
   }
   const { title, tags, prevText, text } = article;
   if (title === '' || text === '') {
+    const reason = '标题或内容不能为空！';
+    const result = 'fail';
+    log_infos['result'] = result;
+    log_infos['reason'] = reason;
     ctx.body = {
-      mes: 'fail',
-      data: '标题或内容不能为空！'
+      mes: result,
+      data: reason
     };
+    log2db(log_infos);
     return;
   }
   const now = new Date().getTime();
@@ -31,10 +54,15 @@ const issueArtice = async (ctx, next) => {
     raw: true
   });
   if (notRepeat !== null) {
+    const reason = '标题重复！';
+    const result = 'fail';
+    log_infos['result'] = result;
+    log_infos['reason'] = reason;
     ctx.body = {
-      mes: 'fail',
-      data: '标题重复！'
+      mes: result,
+      data: reason
     };
+    log2db(log_infos);
     return;
   }
   const ret = await Article.create({
@@ -50,8 +78,12 @@ const issueArtice = async (ctx, next) => {
       console.log(err);
     }
   });
+  const result = 'success';
+  log_infos['result'] = result;
+  log_infos['remark'] = `《${ret.title}》`;
+  log2db(log_infos);
   ctx.body = {
-    mes: 'success',
+    mes: result,
     data: `《${ret.title}》发布成功！`
   };
 };
@@ -134,6 +166,13 @@ const getArticleList = async (ctx, next) => {
 const deleteArticle = async (ctx, next) => {
   const authName = 'addarticle';
   const { operator, id } = ctx.request.body;
+  //log info
+  let log_infos = {
+    type,
+    ip: ctx.request.ip,
+    operation: 'delete',
+    operator: operator
+  };
   const { role: operatorRole } = await User.findOne({
     where: { username: operator },
     attributes: ['role'],
@@ -144,6 +183,8 @@ const deleteArticle = async (ctx, next) => {
     attributes: ['id', 'auther', 'title', 'comment', 'tags', 'previewText', 'likes', 'filepath'],
     raw: true
   });
+  log_infos['remark'] = `《${articleInfo.title}》`;
+  log_infos['target'] = articleInfo.auther;
   const isAllow = checkAuth(operator, authName);
   const isAdmin = await compareWeight(operatorRole, 'admin', true);
   const enoughWeight = await judgeAuth(operator, articleInfo.auther);
@@ -153,20 +194,27 @@ const deleteArticle = async (ctx, next) => {
         await Article.destroy({
           where: { id }
         });
+        log_infos['result'] = 'success';
         ctx.body = {
           msg: 'success',
           data: `${articleInfo.title}已删除！`
         };
       })
       .catch(err => {
+        log_infos['result'] = 'error';
+        log_infos['reason'] = '程序执行出错';
         ctx.body = {
           msg: 'fail',
           data: `删除出错！`
         };
         ctx.status = 400;
       });
+    log2db(log_infos);
     return;
   }
+  log_infos['result'] = 'fail';
+  log_infos['reason'] = '没有权限';
+  log2db(log_infos);
   ctx.body = {
     msg: 'fail',
     data: '没有删除权限！'
@@ -202,12 +250,21 @@ const getArticle = async (ctx, next) => {
 const updateArticle = async (ctx, next) => {
   const authName = 'addarticle';
   const { operator, article } = ctx.request.body;
+
   const isAllow = checkAuth(operator, authName);
-  const { auther, filepath } = await Article.findOne({
+  const { auther, filepath, title } = await Article.findOne({
     where: { id: article.id },
     raw: true,
-    attributes: ['auther', 'filepath']
+    attributes: ['auther', 'filepath', 'title']
   });
+  //log info
+  let log_infos = {
+    type,
+    ip: ctx.request.ip,
+    operation: 'update',
+    operator: operator,
+    remark: `《${title}》`
+  };
   const isInPerson = operator === auther;
   if (isAllow && isInPerson) {
     const id = article.id;
@@ -217,12 +274,18 @@ const updateArticle = async (ctx, next) => {
     })
       .then(ret => {
         fs.writeFileSync(path.join(__dirname, filepath), article.text);
+        log_infos['remark'] = `《${article.title}》`;
+        log_infos['result'] = 'success';
+        log2db(log_infos);
         ctx.body = {
           mes: 'success',
           data: `《${article.title}》更新成功`
         };
       })
       .catch(err => {
+        log_infos['result'] = 'fail';
+        log_infos['reason'] = '文章标题重复';
+        log2db(log_infos);
         ctx.body = {
           mes: 'fail',
           data: `文章标题已存在！`
@@ -231,6 +294,9 @@ const updateArticle = async (ctx, next) => {
 
     return;
   }
+  log_infos['result'] = 'fail';
+  log_infos['reason'] = '权限不足';
+  log2db(log_infos);
   ctx.body = {
     mes: 'fail',
     data: '没有操作权限！'

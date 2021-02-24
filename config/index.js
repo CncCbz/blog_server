@@ -5,6 +5,7 @@ const { MYSQL_CONFIG } = require('./mysql');
 const { SEQUELIZE_CONFIG } = require('./sequelize');
 const { SECRET_CONFIG } = require('./secret');
 const { ghsConfig, ghsList } = require('./ghs');
+const { LOG4JS_CONFIG } = require('./log4js');
 
 module.exports = {
   PORT_CONFIG,
@@ -14,5 +15,6 @@ module.exports = {
   SEQUELIZE_CONFIG,
   SECRET_CONFIG,
   ghsConfig,
-  ghsList
+  ghsList,
+  LOG4JS_CONFIG
 };
