@@ -23,6 +23,7 @@ const getLogs = async (ctx, next) => {
   }
   if (isSuperAdmin) {
     const { rows, count } = await Log.findAndCountAll({
+      order: [['id', 'DESC']],
       raw: true,
       limit,
       offset: limit * (curPage - 1)
@@ -42,6 +43,7 @@ const getLogs = async (ctx, next) => {
           [Op.ne]: 'ghs'
         }
       },
+      order: [['id', 'DESC']],
       raw: true,
       limit,
       offset: limit * (curPage - 1)
@@ -58,6 +60,7 @@ const getLogs = async (ctx, next) => {
     where: {
       [Op.or]: [{ operator }, { target: operator }]
     },
+    order: [['id', 'DESC']],
     raw: true,
     limit,
     offset: limit * (curPage - 1)
