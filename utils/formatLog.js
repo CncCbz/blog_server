@@ -1,5 +1,5 @@
 let formatError = (ctx, err, costTime) => {
-  let ip = ctx.request.ip;
+  let ip = ctx.request.ip.replace(/^:.*:/g, '');
   let method = ctx.method;
   let url = ctx.url;
   let body = ctx.request.body;
@@ -7,7 +7,7 @@ let formatError = (ctx, err, costTime) => {
   return { id, method, url, body, costTime, err };
 };
 let formatRes = (ctx, costTime) => {
-  let ip = ctx.request.ip;
+  let ip = ctx.request.ip.replace(/^:.*:/g, '');
   let method = ctx.method;
   let url = ctx.url;
   let body = ctx.request.body;

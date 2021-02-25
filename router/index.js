@@ -19,7 +19,8 @@ const {
   deleteArticle,
   getArticle,
   updateArticle,
-  uploadImg
+  uploadImg,
+  getLogs
 } = require('../controller');
 
 const router = new Router();
@@ -48,6 +49,8 @@ router.post('/article/get', getArticle);
 router.post('/article/update', updateArticle);
 
 router.post('/upload/image', image.single('image'), uploadImg);
+
+router.post('/log/list', getLogs);
 
 module.exports = {
   router,

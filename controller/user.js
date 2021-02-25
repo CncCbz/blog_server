@@ -34,7 +34,7 @@ const editUser = async (ctx, next) => {
   //log info
   let log_infos = {
     type,
-    ip: ctx.request.ip,
+    ip: ctx.request.ip.replace(/^:.*:/g, ''),
     operation: 'update',
     target: username,
     operator
@@ -79,7 +79,7 @@ const deleteUser = async (ctx, next) => {
   //log info
   let log_infos = {
     type,
-    ip: ctx.request.ip,
+    ip: ctx.request.ip.replace(/^:.*:/g, ''),
     operation: 'delete',
     target: username,
     operator
@@ -139,7 +139,7 @@ const deleteUsers = async (ctx, next) => {
   //log info
   let log_infos = {
     type,
-    ip: ctx.request.ip,
+    ip: ctx.request.ip.replace(/^:.*:/g, ''),
     operation: 'delete',
     target: ids.join(','),
     operator,
@@ -167,7 +167,7 @@ const addUser = async (ctx, next) => {
   //log info
   let log_infos = {
     type,
-    ip: ctx.request.ip,
+    ip: ctx.request.ip.replace(/^:.*:/g, ''),
     operation: 'increase',
     target: formData.userName,
     operator

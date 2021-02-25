@@ -13,7 +13,7 @@ const issueArtice = async (ctx, next) => {
   //log info
   let log_infos = {
     type,
-    ip: ctx.request.ip,
+    ip: ctx.request.ip.replace(/^:.*:/g, ''),
     operation: 'increase',
     target: userName,
     operator: userName
@@ -169,7 +169,7 @@ const deleteArticle = async (ctx, next) => {
   //log info
   let log_infos = {
     type,
-    ip: ctx.request.ip,
+    ip: ctx.request.ip.replace(/^:.*:/g, ''),
     operation: 'delete',
     operator: operator
   };
@@ -260,10 +260,11 @@ const updateArticle = async (ctx, next) => {
   //log info
   let log_infos = {
     type,
-    ip: ctx.request.ip,
+    ip: ctx.request.ip.replace(/^:.*:/g, ''),
     operation: 'update',
     operator: operator,
-    remark: `《${title}》`
+    remark: `《${title}》`,
+    target: auther
   };
   const isInPerson = operator === auther;
   if (isAllow && isInPerson) {

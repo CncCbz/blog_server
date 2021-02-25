@@ -3,3 +3,5 @@
 blogs/*
 /test
 logs/*
+config/mysql.js
+config/cors.js
