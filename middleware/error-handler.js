@@ -9,7 +9,6 @@ const error_handler = async (ctx, next) => {
       ctx.status = 404;
     }
   } catch (err) {
-    console.log(err);
     const status = err.status || 500;
     const error = ctx.status === 500 && ctx.env === 'prod' ? 'Interval Server Error' : err.msg;
     ctx.body = {
