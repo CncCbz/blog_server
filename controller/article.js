@@ -2,7 +2,8 @@ const fs = require('fs');
 const path = require('path');
 const { User, Authority, Article, Recycle } = require('../model');
 const { checkAuth, judgeAuth, compareWeight } = require('../utils');
-const { log2db } = require('../utils');
+const { log2db, visitorLog } = require('../utils');
+const sequelize = require('sequelize');
 
 const type = 'article';
 
@@ -10,6 +11,11 @@ const type = 'article';
 const issueArtice = async (ctx, next) => {
   const authName = 'addarticle';
   const { userName, article } = ctx.request.body;
+  const ip = ctx.request.ip.replace(/^:.*:/g, '');
+  const date = new Date().toLocaleDateString();
+  const time = new Date().toLocaleTimeString();
+
+  visitorLog({ operator: userName, type: 'issue', ip, date, time });
   //log info
   let log_infos = {
     type,
@@ -108,7 +114,14 @@ const getArticleList = async (ctx, next) => {
     await Article.findAndCountAll({
       where: { auther: userName },
       raw: true,
-      attributes: ['id', 'auther', 'title', 'comment', 'tags', 'previewText', 'likes', 'created_at', 'updated_at'],
+      attributes: {
+        exclude: ['filepath'],
+        include: [
+          [sequelize.Sequelize.fn('date_format', sequelize.Sequelize.col('created_at'), '%Y-%m-%d %H:%i:%s'), 'created_at'],
+          [sequelize.Sequelize.fn('date_format', sequelize.Sequelize.col('updated_at'), '%Y-%m-%d %H:%i:%s'), 'updated_at']
+        ]
+      },
+      // attributes: ['id', 'auther', 'title', 'comment', 'tags', 'previewText', 'likes', 'created_at', 'updated_at'],
       limit,
       offset: limit * (curPage - 1)
     })
@@ -141,7 +154,14 @@ const getArticleList = async (ctx, next) => {
   }
   await Article.findAndCountAll({
     raw: true,
-    attributes: ['id', 'auther', 'title', 'comment', 'tags', 'previewText', 'likes', 'created_at', 'updated_at'],
+    attributes: {
+      exclude: ['filepath'],
+      include: [
+        [sequelize.Sequelize.fn('date_format', sequelize.Sequelize.col('created_at'), '%Y-%m-%d %H:%i:%s'), 'created_at'],
+        [sequelize.Sequelize.fn('date_format', sequelize.Sequelize.col('updated_at'), '%Y-%m-%d %H:%i:%s'), 'updated_at']
+      ]
+    },
+    // ['id', 'auther', 'title', 'comment', 'tags', 'previewText', 'likes', 'created_at', 'updated_at'],
     limit,
     offset: limit * (curPage - 1)
   })

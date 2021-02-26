@@ -1,7 +1,7 @@
 const { check, compare, encrypt } = require('./check');
 const { checkAuth } = require('./checkAuth');
 const { judgeAuth, compareWeight } = require('./judgeAuth');
-const { log2db } = require('./log');
+const { log2db, visitorLog } = require('./log');
 const { logger } = require('./log4js');
 
 module.exports = {
@@ -12,5 +12,6 @@ module.exports = {
   judgeAuth,
   compareWeight,
   log2db,
+  visitorLog,
   logger
 };

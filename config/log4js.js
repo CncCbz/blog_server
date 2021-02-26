@@ -21,6 +21,7 @@ const LOG4JS_CONFIG = {
     }
   },
   categories: {
+    out: { appenders: ['out'], level: 'info' },
     error: { appenders: ['out', 'error'], level: 'error' },
     response: { appenders: ['response'], level: 'info' },
     default: { appenders: ['response'], level: 'info' }

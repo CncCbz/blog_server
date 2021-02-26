@@ -1,6 +1,7 @@
 const { User, Authority } = require('../model');
 const { checkAuth, encrypt, judgeAuth, compareWeight } = require('../utils');
 const { log2db } = require('../utils');
+const sequelize = require('sequelize');
 
 const type = 'user';
 
@@ -9,7 +10,13 @@ const getUsers = async (ctx, next) => {
   const { userName } = ctx.request.body;
   const isAllow = await checkAuth(userName, authName);
   if (isAllow) {
-    const users = await User.findAll({ raw: true });
+    const users = await User.findAll({
+      raw: true,
+      attributes: {
+        exclude: ['password'],
+        include: [[sequelize.Sequelize.fn('date_format', sequelize.Sequelize.col('create_time'), '%Y-%m-%d %H:%i:%s'), 'create_time']]
+      }
+    });
     ctx.body = {
       msg: 'success',
       data: '读取成功！',

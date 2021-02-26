@@ -1,10 +1,15 @@
-const { check, compare } = require('../utils');
+const { check, compare, visitorLog } = require('../utils');
 const { User, Authority } = require('../model');
 
 const login = async (ctx, next) => {
   const { userName, password } = ctx.request.body;
+  const ip = ctx.request.ip.replace(/^:.*:/g, '');
+  const now = new Date();
+  const date = now.toLocaleDateString();
+  const time = now.toLocaleTimeString();
   // const check_result = check(ctx)(userName, password);
   // if (!check_result) return;
+  visitorLog({ operator: userName, type: 'login', ip, date, time });
 
   const user = await User.findOne({
     where: { username: userName }

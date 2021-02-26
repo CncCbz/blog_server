@@ -1,7 +1,7 @@
 //数据库日志
-const { Log } = require('../model');
+const { Log, Visitor } = require('../model');
 
-let log2db = info => {
+const log2db = info => {
   Log.create(info, (err, res) => {
     if (err) {
       console.log(err);
@@ -9,6 +9,15 @@ let log2db = info => {
   });
 };
 
+const visitorLog = info => {
+  Visitor.create(info, (err, res) => {
+    if (err) {
+      console.log(err);
+    }
+  });
+};
+
 module.exports = {
-  log2db
+  log2db,
+  visitorLog
 };

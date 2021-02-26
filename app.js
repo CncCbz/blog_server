@@ -32,6 +32,7 @@ app.use(async (ctx, next) => {
   await next();
   const ms = new Date() - start;
   logger.resLogger(ctx, ms);
+  logger.out(ctx, ms);
 });
 app.on('error', (err, ctx) => {
   logger.errLogger(ctx, err);

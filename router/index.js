@@ -20,7 +20,8 @@ const {
   getArticle,
   updateArticle,
   uploadImg,
-  getLogs
+  getLogs,
+  getVisitorInfos
 } = require('../controller');
 
 const router = new Router();
@@ -51,6 +52,8 @@ router.post('/article/update', updateArticle);
 router.post('/upload/image', image.single('image'), uploadImg);
 
 router.post('/log/list', getLogs);
+
+router.get('/home/visitors', getVisitorInfos);
 
 module.exports = {
   router,

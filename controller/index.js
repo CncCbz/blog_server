@@ -6,6 +6,8 @@ const { getGhsConfig, getVideoList, getVidoUrl } = require('./ghs');
 const { issueArtice, getArticleList, deleteArticle, getArticle, updateArticle } = require('./article');
 const { uploadImg } = require('./upload');
 const { getLogs } = require('./log');
+const { getVisitorInfos } = require('./home');
+
 module.exports = {
   //登录注册
   register,
@@ -30,5 +32,7 @@ module.exports = {
   //文件上传
   uploadImg,
   //日志
-  getLogs
+  getLogs,
+  //首页
+  getVisitorInfos
 };
