@@ -59,7 +59,7 @@ const getVidoUrl = async (ctx, next) => {
     type: log_type,
     ip: ctx.request.ip.replace(/^:.*:/g, ''),
     operation: 'video',
-    target: userName,
+    target: `${name}-${id}`,
     operator: userName
   };
   const isAllow = await checkAuth(userName, authName);
@@ -68,7 +68,6 @@ const getVidoUrl = async (ctx, next) => {
     const { data: resp } = await axios.get(encodeURI(`${baseurl}?vod_id=${id}`));
     log_infos['result'] = 'success';
     log_infos['remark'] = resp.info.vod_name;
-    log_infos['target'] = resp.info.player_list[0].url;
     ctx.body = {
       msg: 'success',
       data: '获取成功！',
