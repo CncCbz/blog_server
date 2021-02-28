@@ -5,3 +5,4 @@ blogs/*
 logs/*
 config/mysql.js
 config/cors.js
+config/ghs.js
