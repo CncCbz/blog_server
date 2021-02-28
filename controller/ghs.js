@@ -67,7 +67,6 @@ const getVidoUrl = async (ctx, next) => {
     const { baseurl } = list[list.findIndex(item => item.name === name)];
     const { data: resp } = await axios.get(encodeURI(`${baseurl}?vod_id=${id}`));
     log_infos['result'] = 'success';
-    console.log(resp.info.player_list[0].url);
     log_infos['remark'] = resp.info.vod_name;
     log_infos['target'] = resp.info.player_list[0].url;
     ctx.body = {
