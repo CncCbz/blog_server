@@ -19,6 +19,9 @@ const {
   deleteArticle,
   getArticle,
   updateArticle,
+  saveDraft,
+  getDraft,
+  deleteDraft,
   uploadImg,
   getLogs,
   getVisitorInfos
@@ -48,6 +51,9 @@ router.post('/article/list', getArticleList);
 router.post('/article/delete', deleteArticle);
 router.post('/article/get', getArticle);
 router.post('/article/update', updateArticle);
+router.post('/draft/save', saveDraft);
+router.post('/draft/get', getDraft);
+router.post('/draft/delete', deleteDraft);
 
 router.post('/upload/image', image.single('image'), uploadImg);
 

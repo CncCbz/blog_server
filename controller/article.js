@@ -323,11 +323,89 @@ const updateArticle = async (ctx, next) => {
     data: '没有操作权限！'
   };
 };
-
+//保存草稿
+const saveDraft = async (ctx, next) => {
+  const authName = 'addarticle';
+  const { userName, draft } = ctx.request.body;
+  const isAllow = await checkAuth(userName, authName);
+  if (!isAllow) {
+    ctx.body = {
+      msg: 'fail',
+      data: `没有权限！`
+    };
+  }
+  const filepath = `../blogs/draft/${userName}.txt`;
+  await fs.writeFile(path.join(__dirname, filepath), JSON.stringify(draft), function (err) {
+    if (err) {
+      console.log(err);
+    }
+  });
+  ctx.body = {
+    msg: 'success',
+    data: `保存草稿成功！`
+  };
+};
+//获取草稿
+const getDraft = async (ctx, next) => {
+  const authName = 'addarticle';
+  const { userName } = ctx.request.body;
+  const isAllow = await checkAuth(userName, authName);
+  if (!isAllow) {
+    ctx.body = {
+      msg: 'fail',
+      data: `没有权限！`
+    };
+    return;
+  }
+  const filepath = `../blogs/draft/${userName}.txt`;
+  try {
+    let article = fs.readFileSync(path.join(__dirname, filepath), 'utf-8');
+    article = JSON.parse(article);
+    ctx.body = {
+      msg: 'success',
+      data: `获取草稿成功！`,
+      article
+    };
+  } catch {
+    ctx.body = {
+      msg: 'none',
+      data: `没有草稿！`
+    };
+  }
+};
+//删除草稿
+const deleteDraft = async (ctx, next) => {
+  const authName = 'addarticle';
+  const { userName } = ctx.request.body;
+  const isAllow = await checkAuth(userName, authName);
+  if (!isAllow) {
+    ctx.body = {
+      msg: 'fail',
+      data: `没有权限！`
+    };
+    return;
+  }
+  const filepath = `../blogs/draft/${userName}.txt`;
+  if (fs.existsSync(path.join(__dirname, filepath))) {
+    fs.unlinkSync(path.join(__dirname, filepath));
+    ctx.body = {
+      msg: 'success',
+      data: '删除草稿成功！'
+    };
+    return;
+  }
+  ctx.body = {
+    msg: 'fail',
+    data: '草稿不存在！'
+  };
+};
 module.exports = {
   issueArtice,
   getArticleList,
   deleteArticle,
   getArticle,
-  updateArticle
+  updateArticle,
+  saveDraft,
+  getDraft,
+  deleteDraft
 };
