@@ -22,6 +22,7 @@ const login = async (ctx, next) => {
     return;
   }
   const role = user.role;
+  const id = user.id;
   const auth = await Authority.findOne({
     where: { role: role }
   });
@@ -36,6 +37,7 @@ const login = async (ctx, next) => {
         },
         ctx.jwt.secret
       ),
+      id,
       userName,
       role,
       authority: auth.dataValues

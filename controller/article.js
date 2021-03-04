@@ -1,6 +1,6 @@
 const fs = require('fs');
 const path = require('path');
-const { User, Authority, Article, Recycle } = require('../model');
+const { User, Authority, Article, Recycle, Article_comment } = require('../model');
 const { checkAuth, judgeAuth, compareWeight } = require('../utils');
 const { log2db, visitorLog } = require('../utils');
 const sequelize = require('sequelize');
@@ -96,7 +96,7 @@ const issueArtice = async (ctx, next) => {
 //获取文章列表
 const getArticleList = async (ctx, next) => {
   const authName = 'listarticle';
-  const { userName, curPage, limit } = ctx.request.body;
+  const { userName, curPage, limit, sort } = ctx.request.body;
   const isAllow = checkAuth(userName, authName);
   if (!isAllow) {
     ctx.body = {
@@ -110,10 +110,60 @@ const getArticleList = async (ctx, next) => {
     attributes: ['role'],
     raw: true
   });
+  let order = [];
+  for (let key in sort) {
+    let arr = [];
+    arr.push(key);
+    if (sort[key] === 'descending') {
+      arr.push('DESC');
+    }
+    order.push(arr);
+  }
   if (!(await compareWeight(userRole, 'admin', true))) {
-    await Article.findAndCountAll({
-      where: { auther: userName },
+    try {
+      const { rows, count } = await Article.findAndCountAll({
+        order,
+        where: { auther: userName },
+        raw: true,
+        attributes: {
+          exclude: ['filepath'],
+          include: [
+            [sequelize.Sequelize.fn('date_format', sequelize.Sequelize.col('created_at'), '%Y-%m-%d %H:%i:%s'), 'created_at'],
+            [sequelize.Sequelize.fn('date_format', sequelize.Sequelize.col('updated_at'), '%Y-%m-%d %H:%i:%s'), 'updated_at']
+          ]
+        },
+        // attributes: ['id', 'auther', 'title', 'comment', 'tags', 'previewText', 'likes', 'created_at', 'updated_at'],
+        limit,
+        offset: limit * (curPage - 1)
+      });
+      if (count === 0) {
+        ctx.body = {
+          msg: 'fail',
+          data: '还未发布过文章，快去发布你的第一篇博客吧',
+          list: [],
+          total: 0
+        };
+        return;
+      }
+      ctx.body = {
+        msg: 'success',
+        data: '获取成功',
+        list: rows,
+        total: count
+      };
+    } catch (err) {
+      ctx.body = {
+        msg: 'fail',
+        data: '还未发布过文章，快去发布你的第一篇博客吧',
+        list: [],
+        total: 0
+      };
+    }
+  }
+  try {
+    const { count, rows } = await Article.findAndCountAll({
       raw: true,
+      order,
       attributes: {
         exclude: ['filepath'],
         include: [
@@ -121,66 +171,24 @@ const getArticleList = async (ctx, next) => {
           [sequelize.Sequelize.fn('date_format', sequelize.Sequelize.col('updated_at'), '%Y-%m-%d %H:%i:%s'), 'updated_at']
         ]
       },
-      // attributes: ['id', 'auther', 'title', 'comment', 'tags', 'previewText', 'likes', 'created_at', 'updated_at'],
+      // ['id', 'auther', 'title', 'comment', 'tags', 'previewText', 'likes', 'created_at', 'updated_at'],
       limit,
       offset: limit * (curPage - 1)
-    })
-      .then(ret => {
-        if (ret.count === 0) {
-          ctx.body = {
-            msg: 'fail',
-            data: '还未发布过文章，快去发布你的第一篇博客吧',
-            list: [],
-            total: 0
-          };
-          return;
-        }
-        ctx.body = {
-          msg: 'success',
-          data: '获取成功',
-          list: ret.rows,
-          total: ret.count
-        };
-      })
-      .catch(err => {
-        ctx.body = {
-          msg: 'fail',
-          data: '还未发布过文章，快去发布你的第一篇博客吧',
-          list: [],
-          total: 0
-        };
-      });
-    return;
-  }
-  await Article.findAndCountAll({
-    raw: true,
-    attributes: {
-      exclude: ['filepath'],
-      include: [
-        [sequelize.Sequelize.fn('date_format', sequelize.Sequelize.col('created_at'), '%Y-%m-%d %H:%i:%s'), 'created_at'],
-        [sequelize.Sequelize.fn('date_format', sequelize.Sequelize.col('updated_at'), '%Y-%m-%d %H:%i:%s'), 'updated_at']
-      ]
-    },
-    // ['id', 'auther', 'title', 'comment', 'tags', 'previewText', 'likes', 'created_at', 'updated_at'],
-    limit,
-    offset: limit * (curPage - 1)
-  })
-    .then(ret => {
-      ctx.body = {
-        msg: 'success',
-        data: '获取成功',
-        list: ret.rows,
-        total: ret.count
-      };
-    })
-    .catch(err => {
-      ctx.body = {
-        msg: 'success',
-        data: '数据库中没有任何文章！',
-        list: [],
-        total: 0
-      };
     });
+    ctx.body = {
+      msg: 'success',
+      data: '获取成功',
+      list: rows,
+      total: count
+    };
+  } catch (err) {
+    ctx.body = {
+      msg: 'success',
+      data: '数据库中没有任何文章！',
+      list: [],
+      total: 0
+    };
+  }
 };
 //删除文章
 const deleteArticle = async (ctx, next) => {
@@ -214,6 +222,13 @@ const deleteArticle = async (ctx, next) => {
         await Article.destroy({
           where: { id }
         });
+        const date = new Date();
+        await Article_comment.update(
+          { isDeleted: true, deleteAt: date },
+          {
+            where: { articleId: id }
+          }
+        );
         log_infos['result'] = 'success';
         ctx.body = {
           msg: 'success',

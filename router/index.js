@@ -24,7 +24,10 @@ const {
   deleteDraft,
   uploadImg,
   getLogs,
-  getVisitorInfos
+  getVisitorInfos,
+  getComments,
+  setTopStatus,
+  deleteComment
 } = require('../controller');
 
 const router = new Router();
@@ -60,6 +63,10 @@ router.post('/upload/image', image.single('image'), uploadImg);
 router.post('/log/list', getLogs);
 
 router.get('/home/visitors', getVisitorInfos);
+
+router.post('/comment/list', getComments);
+router.post('/comment/status', setTopStatus);
+router.post('/comment/delete', deleteComment);
 
 module.exports = {
   router,

@@ -7,6 +7,7 @@ const { issueArtice, getArticleList, deleteArticle, getArticle, updateArticle, s
 const { uploadImg } = require('./upload');
 const { getLogs } = require('./log');
 const { getVisitorInfos } = require('./home');
+const { getComments, setTopStatus, deleteComment } = require('./comment');
 
 module.exports = {
   //登录注册
@@ -37,5 +38,9 @@ module.exports = {
   //日志
   getLogs,
   //首页
-  getVisitorInfos
+  getVisitorInfos,
+  //评论管理
+  getComments,
+  setTopStatus,
+  deleteComment
 };
