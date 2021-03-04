@@ -25,7 +25,7 @@ const issueArtice = async (ctx, next) => {
     operator: userName
   };
 
-  const isAllow = checkAuth(userName, authName);
+  const isAllow = await checkAuth(userName, authName);
   if (!isAllow) {
     const reason = '权限不足';
     const result = 'fail';
@@ -97,7 +97,7 @@ const issueArtice = async (ctx, next) => {
 const getArticleList = async (ctx, next) => {
   const authName = 'listarticle';
   const { userName, curPage, limit, sort } = ctx.request.body;
-  const isAllow = checkAuth(userName, authName);
+  const isAllow = await checkAuth(userName, authName);
   if (!isAllow) {
     ctx.body = {
       msg: 'fail',
@@ -213,7 +213,7 @@ const deleteArticle = async (ctx, next) => {
   });
   log_infos['remark'] = `《${articleInfo.title}》`;
   log_infos['target'] = articleInfo.auther;
-  const isAllow = checkAuth(operator, authName);
+  const isAllow = await checkAuth(operator, authName);
   const isAdmin = await compareWeight(operatorRole, 'admin', true);
   const enoughWeight = await judgeAuth(operator, articleInfo.auther);
   if (isAllow && (operator === articleInfo.auther || (isAdmin && enoughWeight))) {
@@ -259,7 +259,7 @@ const deleteArticle = async (ctx, next) => {
 const getArticle = async (ctx, next) => {
   const authName = 'article';
   const { operator, id } = ctx.request.body;
-  const isAllow = checkAuth(operator, authName);
+  const isAllow = await checkAuth(operator, authName);
   const articleInfo = await Article.findOne({
     where: { id },
     raw: true,
@@ -286,7 +286,7 @@ const updateArticle = async (ctx, next) => {
   const authName = 'addarticle';
   const { operator, article } = ctx.request.body;
 
-  const isAllow = checkAuth(operator, authName);
+  const isAllow = await checkAuth(operator, authName);
   const { auther, filepath, title } = await Article.findOne({
     where: { id: article.id },
     raw: true,
