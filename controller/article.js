@@ -151,6 +151,7 @@ const getArticleList = async (ctx, next) => {
         list: rows,
         total: count
       };
+      return
     } catch (err) {
       ctx.body = {
         msg: 'fail',
@@ -158,6 +159,7 @@ const getArticleList = async (ctx, next) => {
         list: [],
         total: 0
       };
+      return
     }
   }
   try {
