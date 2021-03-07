@@ -1,6 +1,6 @@
 const fs = require('fs');
 const path = require('path');
-const { User, Authority, Article, Recycle, Article_comment } = require('../model');
+const { User, Authority, Article, Recycle, Article_comment, Reply_comment } = require('../model');
 const { checkAuth, judgeAuth, compareWeight } = require('../utils');
 const { log2db, visitorLog } = require('../utils');
 const sequelize = require('sequelize');
@@ -151,7 +151,7 @@ const getArticleList = async (ctx, next) => {
         list: rows,
         total: count
       };
-      return
+      return;
     } catch (err) {
       ctx.body = {
         msg: 'fail',
@@ -159,7 +159,7 @@ const getArticleList = async (ctx, next) => {
         list: [],
         total: 0
       };
-      return
+      return;
     }
   }
   try {
@@ -226,6 +226,12 @@ const deleteArticle = async (ctx, next) => {
         });
         const date = new Date();
         await Article_comment.update(
+          { isDeleted: true, deleteAt: date },
+          {
+            where: { articleId: id }
+          }
+        );
+        await Reply_comment.update(
           { isDeleted: true, deleteAt: date },
           {
             where: { articleId: id }

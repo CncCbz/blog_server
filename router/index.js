@@ -27,7 +27,9 @@ const {
   getVisitorInfos,
   getComments,
   setTopStatus,
-  deleteComment
+  deleteComment,
+  getReply,
+  deleteReply
 } = require('../controller');
 
 const router = new Router();
@@ -67,6 +69,8 @@ router.get('/home/visitors', getVisitorInfos);
 router.post('/comment/list', getComments);
 router.post('/comment/status', setTopStatus);
 router.post('/comment/delete', deleteComment);
+router.post('/comment/reply/list', getReply);
+router.post('/comment/reply/delete', deleteReply);
 
 module.exports = {
   router,

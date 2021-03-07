@@ -124,9 +124,17 @@ const define_schema_reply_comment = (db, Sequelize) => {
         type: Sequelize.STRING,
         allowNull: false
       },
+      replyContent: {
+        type: Sequelize.STRING,
+        allowNull: true
+      },
       //文章id
       articleId: {
         type: Sequelize.INTEGER,
+        allowNull: false
+      },
+      articleTitle: {
+        type: Sequelize.STRING,
         allowNull: false
       },
       //用户id
