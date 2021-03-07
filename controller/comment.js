@@ -212,7 +212,7 @@ const getReply = async (ctx, next) => {
   }
   if (!isAdmin) {
     //不显示被删除的评论
-    filter = Object.assign(filter, { isDeleted: false });
+    filter = Object.assign(filter, { isDeleted: false, replyName: userName });
     const { count, rows } = await Reply_comment.findAndCountAll({
       order,
       where: filter,
